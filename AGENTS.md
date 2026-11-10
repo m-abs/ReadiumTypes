@@ -16,9 +16,13 @@ System.Text.Json only. Namespaces: `Mabs.ReadiumTypes` (core + locator),
   via `EnforceCodeStyleInBuild` and `.editorconfig`, the law.
 - `dotnet test` — unit tests, including fixture round-trips from
   `specs/webpub-manifest/examples/`.
+- `bin/coverage.sh` — coverage + HTML report (needs the `reportgenerator`
+  global tool; report at `tests/ReadiumTypes.Tests/coverage/report/index.html`).
 - `docfx docfx.json` — metadata + docs build into `_site/`.
 - `bin/docfx.sh` — build + serve on port 8091.
 - `dotnet format` — normalize style.
+- `bin/release.sh major|minor|patch|X.Y.Z` — bump `<Version>`, commit, tag
+  `vX.Y.Z`, push (tag triggers `publish.yml`).
 
 ## Conventions
 
