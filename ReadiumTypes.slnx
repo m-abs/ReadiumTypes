@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="src/ReadiumTypes/ReadiumTypes.csproj" />
+  <Project Path="tests/ReadiumTypes.Tests/ReadiumTypes.Tests.csproj" />
+</Solution>

@@ -1,0 +1,8 @@
+<Project>
+  <PropertyGroup>
+    <!-- .editorconfig is the law: IDE style/formatting diagnostics become
+         build warnings (raise their severity in .editorconfig to fail the
+         build). Normalize with: dotnet format (folder mode: `format .`) -->
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+  </PropertyGroup>
+</Project>

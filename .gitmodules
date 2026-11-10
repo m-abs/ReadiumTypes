@@ -1,0 +1,15 @@
+[submodule "specs/webpub-manifest"]
+	path = specs/webpub-manifest
+	url = https://github.com/readium/webpub-manifest.git
+[submodule "specs/guided-navigation"]
+	path = specs/guided-navigation
+	url = https://github.com/readium/guided-navigation.git
+[submodule "specs/opds-specs"]
+	path = specs/opds-specs
+	url = https://github.com/opds-community/specs.git
+[submodule "specs/readium-architecture"]
+	path = specs/readium-architecture
+	url = https://github.com/readium/architecture.git
+[submodule "specs/opds-drafts"]
+	path = specs/opds-drafts
+	url = https://github.com/opds-community/drafts.git

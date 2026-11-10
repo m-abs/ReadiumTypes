@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>Mabs.ReadiumTypes</RootNamespace>
+    <AssemblyName>ReadiumTypes</AssemblyName>
+    <Version>0.1.0</Version>
+    <IsPackable>true</IsPackable>
+    <PackageId>Mabs.ReadiumTypes</PackageId>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Authors>Morten Sjøgren</Authors>
+    <Description>Readium and OPDS JSON data types for System.Text.Json.</Description>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>false</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="StyleCop.Analyzers" />
+  </ItemGroup>
+
+</Project>
