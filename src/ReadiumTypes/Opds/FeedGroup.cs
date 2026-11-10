@@ -4,20 +4,23 @@ using System.Text.Json.Serialization;
 
 namespace Mabs.ReadiumTypes.Opds;
 
-/// <summary>A group of related navigation links or sub-feeds in a feed.</summary>
+/// <summary>
+/// A group of related publications or navigation links in a feed; also the wire shape of a
+/// facet group, whose <see cref="Publications"/> and <see cref="Navigation"/> stay empty.
+/// </summary>
 public record FeedGroup : IExtensionDataHolder
 {
-    /// <summary>Identifier of the group.</summary>
-    [JsonPropertyName("id")]
-    public string? Id { get; set; }
-
-    /// <summary>Title of the group.</summary>
-    [JsonPropertyName("title")]
-    public LocalizedString Title { get; set; } = new();
+    /// <summary>Metadata of the group.</summary>
+    [JsonPropertyName("metadata")]
+    public FeedMetadata Metadata { get; set; } = new();
 
     /// <summary>Links of the group.</summary>
     [JsonPropertyName("links")]
     public List<Link> Links { get; set; } = [];
+
+    /// <summary>Publications of the group.</summary>
+    [JsonPropertyName("publications")]
+    public List<OpdsPublication> Publications { get; set; } = [];
 
     /// <summary>Navigation links of the group.</summary>
     [JsonPropertyName("navigation")]
@@ -27,11 +30,11 @@ public record FeedGroup : IExtensionDataHolder
     [JsonExtensionData]
     public IDictionary<string, JsonElement>? ExtensionData { get; set; }
 
-    /// <summary>Determines whether <see cref="Links"/> is written; an empty collection is omitted.</summary>
-    /// <returns><see langword="true"/> when <see cref="Links"/> contains items.</returns>
-    public bool ShouldSerializeLinks()
+    /// <summary>Determines whether <see cref="Publications"/> is written; an empty collection is omitted.</summary>
+    /// <returns><see langword="true"/> when <see cref="Publications"/> contains items.</returns>
+    public bool ShouldSerializePublications()
     {
-        return Links.Count > 0;
+        return Publications.Count > 0;
     }
 
     /// <summary>Determines whether <see cref="Navigation"/> is written; an empty collection is omitted.</summary>

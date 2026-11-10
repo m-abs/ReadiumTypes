@@ -9,7 +9,7 @@ namespace Mabs.ReadiumTypes.Tests;
 /// <summary><c>ShouldSerialize{Prop}()</c> behavior through <see cref="ReadiumJson.Options"/>.</summary>
 public class ShouldSerializeTests
 {
-    /// <summary>Empty optional publication collections are absent from output; required ones are written.</summary>
+    /// <summary>Empty publication collections are absent from output; required readingOrder is written.</summary>
     [Fact]
     public void EmptyOptionalCollectionsAreOmitted()
     {
@@ -17,7 +17,7 @@ public class ShouldSerializeTests
         Assert.DoesNotContain("\"@context\"", json);
         Assert.DoesNotContain("\"resources\"", json);
         Assert.DoesNotContain("\"covers\"", json);
-        Assert.Contains("\"links\":[]", json);
+        Assert.DoesNotContain("\"links\"", json);
         Assert.Contains("\"readingOrder\":[]", json);
     }
 
@@ -53,13 +53,23 @@ public class ShouldSerializeTests
         Assert.DoesNotContain("\"altIdentifier\"", json);
     }
 
-    /// <summary>Empty feed items and groups are absent from output; required links are written.</summary>
+    /// <summary>Null optional properties are omitted from output (ADR 0005).</summary>
     [Fact]
-    public void FeedOmitsEmptyItemsAndGroups()
+    public void NullPropertiesAreOmitted()
+    {
+        string json = JsonSerializer.Serialize(new Link { Href = "a" }, ReadiumJson.Options);
+        Assert.Equal("{\"href\":\"a\"}", json);
+    }
+
+    /// <summary>Empty feed collections are absent from output; required links are written.</summary>
+    [Fact]
+    public void FeedOmitsEmptyCollections()
     {
         Feed feed = new() { Metadata = new FeedMetadata { Title = new LocalizedString("t") } };
         string json = JsonSerializer.Serialize(feed, ReadiumJson.Options);
-        Assert.DoesNotContain("\"items\"", json);
+        Assert.DoesNotContain("\"publications\"", json);
+        Assert.DoesNotContain("\"navigation\"", json);
+        Assert.DoesNotContain("\"facets\"", json);
         Assert.DoesNotContain("\"groups\"", json);
         Assert.Contains("\"links\":[]", json);
     }

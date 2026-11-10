@@ -33,7 +33,7 @@ internal sealed class LocalizedStringConverter : JsonConverter<LocalizedString?>
         if (entries.TryGetValue("value", out string? opdsValue))
         {
             entries.TryGetValue("language", out string? language);
-            value[language ?? string.Empty] = opdsValue;
+            value[language ?? LocalizedString.UndeterminedLanguage] = opdsValue;
             return value;
         }
 
@@ -87,7 +87,7 @@ internal sealed class LocalizedStringConverter : JsonConverter<LocalizedString?>
             return;
         }
 
-        if (value.Count == 1 && value.Any(pair => pair.Key.Length == 0))
+        if (value.Count == 1 && value.Any(pair => pair.Key == LocalizedString.UndeterminedLanguage))
         {
             writer.WriteStringValue(value.Default);
             return;

@@ -2,70 +2,58 @@ using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-using Mabs.ReadiumTypes.Utils;
-
 namespace Mabs.ReadiumTypes.Opds;
 
 /// <summary>An OPDS 2.0 feed.</summary>
 public record Feed : IExtensionDataHolder
 {
-    /// <summary>JSON-LD context URIs of the feed.</summary>
-    [JsonConverter(typeof(StringOrArrayConverter))]
-    [JsonPropertyName("@context")]
-    public List<string> Context { get; set; } = [];
-
-    /// <summary>Metadata of the feed.</summary>
+    /// <summary>Feed-level metadata such as title or number of items.</summary>
     [JsonPropertyName("metadata")]
     public FeedMetadata Metadata { get; set; } = new();
 
-    /// <summary>Links of the feed.</summary>
+    /// <summary>Feed-level links such as search or pagination.</summary>
     [JsonPropertyName("links")]
     public List<Link> Links { get; set; } = [];
 
-    /// <summary>Publication entries of the feed.</summary>
-    [JsonPropertyName("items")]
-    public List<OpdsPublication> Items { get; set; } = [];
+    /// <summary>A list of publications that can be acquired.</summary>
+    [JsonPropertyName("publications")]
+    public List<OpdsPublication> Publications { get; set; } = [];
 
-    /// <summary>Groups of the feed.</summary>
+    /// <summary>Navigation for the catalog using links.</summary>
+    [JsonPropertyName("navigation")]
+    public List<Link> Navigation { get; set; } = [];
+
+    /// <summary>Facets to re-order or obtain a subset of the current list of publications.</summary>
+    [JsonPropertyName("facets")]
+    public List<FeedGroup> Facets { get; set; } = [];
+
+    /// <summary>Groups providing a curated experience, grouping publications or navigation links.</summary>
     [JsonPropertyName("groups")]
     public List<FeedGroup> Groups { get; set; } = [];
-
-    /// <summary>Total number of items matching the feed query.</summary>
-    [JsonPropertyName("totalItems")]
-    public int? TotalItems { get; set; }
-
-    /// <summary>Link to the next page of the feed.</summary>
-    [JsonPropertyName("next")]
-    public Link? Next { get; set; }
-
-    /// <summary>Link to the previous page of the feed.</summary>
-    [JsonPropertyName("prev")]
-    public Link? Prev { get; set; }
-
-    /// <summary>Link to the first page of the feed.</summary>
-    [JsonPropertyName("first")]
-    public Link? First { get; set; }
-
-    /// <summary>Link to the last page of the feed.</summary>
-    [JsonPropertyName("last")]
-    public Link? Last { get; set; }
 
     /// <summary>Wire properties not described by the schema.</summary>
     [JsonExtensionData]
     public IDictionary<string, JsonElement>? ExtensionData { get; set; }
 
-    /// <summary>Determines whether <see cref="Context"/> is written; an empty collection is omitted.</summary>
-    /// <returns><see langword="true"/> when <see cref="Context"/> contains items.</returns>
-    public bool ShouldSerializeContext()
+    /// <summary>Determines whether <see cref="Publications"/> is written; an empty collection is omitted.</summary>
+    /// <returns><see langword="true"/> when <see cref="Publications"/> contains items.</returns>
+    public bool ShouldSerializePublications()
     {
-        return Context.Count > 0;
+        return Publications.Count > 0;
     }
 
-    /// <summary>Determines whether <see cref="Items"/> is written; an empty collection is omitted.</summary>
-    /// <returns><see langword="true"/> when <see cref="Items"/> contains items.</returns>
-    public bool ShouldSerializeItems()
+    /// <summary>Determines whether <see cref="Navigation"/> is written; an empty collection is omitted.</summary>
+    /// <returns><see langword="true"/> when <see cref="Navigation"/> contains items.</returns>
+    public bool ShouldSerializeNavigation()
     {
-        return Items.Count > 0;
+        return Navigation.Count > 0;
+    }
+
+    /// <summary>Determines whether <see cref="Facets"/> is written; an empty collection is omitted.</summary>
+    /// <returns><see langword="true"/> when <see cref="Facets"/> contains items.</returns>
+    public bool ShouldSerializeFacets()
+    {
+        return Facets.Count > 0;
     }
 
     /// <summary>Determines whether <see cref="Groups"/> is written; an empty collection is omitted.</summary>

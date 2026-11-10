@@ -54,6 +54,13 @@ public record Publication : IExtensionDataHolder
     [JsonExtensionData]
     public IDictionary<string, JsonElement>? ExtensionData { get; set; }
 
+    /// <summary>Determines whether <see cref="Links"/> is written; an empty collection is omitted.</summary>
+    /// <returns><see langword="true"/> when <see cref="Links"/> contains items.</returns>
+    public bool ShouldSerializeLinks()
+    {
+        return Links.Count > 0;
+    }
+
     /// <summary>Determines whether <see cref="Context"/> is written; an empty collection is omitted.</summary>
     /// <returns><see langword="true"/> when <see cref="Context"/> contains items.</returns>
     public bool ShouldSerializeContext()

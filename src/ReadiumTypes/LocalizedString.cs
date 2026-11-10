@@ -9,13 +9,16 @@ using Mabs.ReadiumTypes.Utils;
 namespace Mabs.ReadiumTypes;
 
 /// <summary>
-/// A value in one or more languages keyed by BCP 47 tag; the empty-string key holds the
-/// language-unspecified (default) value. All wire forms are read and written through
-/// <see cref="LocalizedStringConverter"/>.
+/// A value in one or more languages keyed by BCP 47 tag; the <c>und</c>
+/// (undetermined) key holds the language-unspecified (default) value. All wire forms are read
+/// and written through <see cref="LocalizedStringConverter"/>.
 /// </summary>
 [JsonConverter(typeof(LocalizedStringConverter))]
 public sealed class LocalizedString : IEnumerable<KeyValuePair<string, string>>
 {
+    /// <summary>BCP 47 key under which the language-unspecified value is stored.</summary>
+    internal const string UndeterminedLanguage = "und";
+
     private readonly Dictionary<string, string> _map = [];
 
     /// <summary>Creates an empty localized string.</summary>
@@ -27,7 +30,7 @@ public sealed class LocalizedString : IEnumerable<KeyValuePair<string, string>>
     /// <param name="value">The value.</param>
     public LocalizedString(string value)
     {
-        _map[string.Empty] = value;
+        _map[UndeterminedLanguage] = value;
     }
 
     /// <summary>Converts a plain string to a localized string with a language-unspecified value.</summary>
@@ -39,7 +42,7 @@ public sealed class LocalizedString : IEnumerable<KeyValuePair<string, string>>
     }
 
     /// <summary>Gets or sets the value for a language tag.</summary>
-    /// <param name="language">The BCP 47 language tag; the empty string is the default language.</param>
+    /// <param name="language">The BCP 47 language tag; <c>und</c> is the language-unspecified default.</param>
     public string this[string language]
     {
         get => _map[language];
@@ -54,7 +57,7 @@ public sealed class LocalizedString : IEnumerable<KeyValuePair<string, string>>
     {
         get
         {
-            if (_map.TryGetValue(string.Empty, out string? value))
+            if (_map.TryGetValue(UndeterminedLanguage, out string? value))
             {
                 return value;
             }

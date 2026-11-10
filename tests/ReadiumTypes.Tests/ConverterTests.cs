@@ -66,6 +66,19 @@ public class ConverterTests
         Assert.Contains("\"title\":{\"en\":\"x\",\"fr\":\"y\"}", json);
     }
 
+    /// <summary>A language-unspecified value alongside tagged languages writes the <c>und</c> key, never an empty key.</summary>
+    [Fact]
+    public void LocalizedStringWritesUndForDefaultAlongsideTagged()
+    {
+        PublicationMetadata metadata = new();
+        LocalizedString title = new("Hello");
+        title["fr"] = "Bonjour";
+        metadata.Title = title;
+        string json = JsonSerializer.Serialize(metadata, ReadiumJson.Options);
+        Assert.Contains("\"title\":{\"und\":\"Hello\",\"fr\":\"Bonjour\"}", json);
+        Assert.DoesNotContain("\"\":", json);
+    }
+
     /// <summary>Single object and mixed string/object arrays normalize to lists.</summary>
     [Fact]
     public void OneOrArrayObjectReadsSingleObjectAndMixedArray()
@@ -83,8 +96,8 @@ public class ConverterTests
     [Fact]
     public void OneOrArrayObjectReadsBareNumberAsPosition()
     {
-        PublicationMetadata metadata = JsonSerializer.Deserialize<PublicationMetadata>("{\"title\":\"t\",\"contains\":{\"series\":[{\"name\":\"S\"}]}}", ReadiumJson.Options)!;
-        Assert.Equal("S", Assert.Single(metadata.Contains!.Series).Name!.Default);
+        PublicationMetadata metadata = JsonSerializer.Deserialize<PublicationMetadata>("{\"title\":\"t\",\"contains\":{\"series\":3}}", ReadiumJson.Options)!;
+        Assert.Equal(3d, Assert.Single(metadata.Contains!.Series).Position!.Value);
     }
 
     /// <summary>altIdentifier accepts bare strings and objects in the same array.</summary>

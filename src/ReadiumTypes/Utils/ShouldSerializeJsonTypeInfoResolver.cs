@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text.Json;
@@ -15,6 +16,8 @@ namespace Mabs.ReadiumTypes.Utils;
 /// </summary>
 internal sealed class ShouldSerializeJsonTypeInfoResolver : DefaultJsonTypeInfoResolver
 {
+    private static readonly ConcurrentDictionary<Type, object?> DefaultValues = new();
+
     private static bool IsIgnored(object? value, JsonIgnoreCondition ignoreCondition)
     {
         if (value is null)
@@ -22,12 +25,14 @@ internal sealed class ShouldSerializeJsonTypeInfoResolver : DefaultJsonTypeInfoR
             return ignoreCondition == JsonIgnoreCondition.WhenWritingNull;
         }
 
-        if (value.GetType().IsValueType && value.Equals(Activator.CreateInstance(value.GetType())))
+        // shortcut: WhenWritingDefault is unused in the models; the cached default keeps it
+        // correct if a model ever opts in without paying Activator.CreateInstance per write.
+        if (ignoreCondition != JsonIgnoreCondition.WhenWritingDefault || !value.GetType().IsValueType)
         {
-            return ignoreCondition == JsonIgnoreCondition.WhenWritingDefault;
+            return false;
         }
 
-        return false;
+        return value.Equals(DefaultValues.GetOrAdd(value.GetType(), static type => Activator.CreateInstance(type)));
     }
 
     private static Func<object, bool>? MakeShouldSerializeWrapper(Type type, string propertyName)
@@ -43,7 +48,10 @@ internal sealed class ShouldSerializeJsonTypeInfoResolver : DefaultJsonTypeInfoR
 
     private static Func<object, bool> MakeShouldSerializeFnFromMethod(MethodInfo method)
     {
-        Expression<Func<object, bool>> expression = obj => (bool)method.Invoke(obj, new object?[0])!;
+        ParameterExpression obj = Expression.Parameter(typeof(object), "obj");
+        Expression<Func<object, bool>> expression = Expression.Lambda<Func<object, bool>>(
+            Expression.Call(Expression.Convert(obj, method.DeclaringType!), method),
+            obj);
         return expression.Compile();
     }
 

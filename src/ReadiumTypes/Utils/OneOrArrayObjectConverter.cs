@@ -10,7 +10,8 @@ namespace Mabs.ReadiumTypes.Utils;
 /// Reads the webpub "one object, string, number, or mixed array" union (contributor, subject,
 /// series, ...) into a list: a bare string becomes an item whose <c>Name</c> is that string, a
 /// bare number becomes an item whose <c>Position</c> is that number, and objects are read
-/// normally. Always writes the array form.
+/// normally. String and number items are rejected for types without a <c>Name</c>/<c>Position</c>
+/// property (e.g. <see cref="Link"/>). Always writes the array form.
 /// </summary>
 /// <typeparam name="T">The model type; must expose settable <c>Name</c> and/or <c>Position</c> properties.</typeparam>
 internal sealed class OneOrArrayObjectConverter<T> : JsonConverter<List<T>>
@@ -25,19 +26,27 @@ internal sealed class OneOrArrayObjectConverter<T> : JsonConverter<List<T>>
         if (NameProperty?.PropertyType == typeof(LocalizedString))
         {
             NameProperty.SetValue(item, new LocalizedString(name));
-        }
-        else if (NameProperty?.PropertyType == typeof(string))
-        {
-            NameProperty.SetValue(item, name);
+            return item;
         }
 
-        return item;
+        if (NameProperty?.PropertyType == typeof(string))
+        {
+            NameProperty.SetValue(item, name);
+            return item;
+        }
+
+        throw new JsonException($"Cannot read a string item as {typeof(T).Name}: it has no settable Name property of type string or LocalizedString.");
     }
 
     private static T FromPosition(double position)
     {
+        if (PositionProperty is null)
+        {
+            throw new JsonException($"Cannot read a number item as {typeof(T).Name}: it has no settable Position property.");
+        }
+
         T item = new();
-        PositionProperty?.SetValue(item, position);
+        PositionProperty.SetValue(item, position);
         return item;
     }
 

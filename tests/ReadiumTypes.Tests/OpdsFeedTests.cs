@@ -12,23 +12,20 @@ public class OpdsFeedTests
 {
     private const string FeedJson = """
         {
-          "@context": "http://opds.io/feed/2.0",
           "metadata": { "title": "New arrivals", "numberOfItems": 1 },
           "links": [ { "href": "/", "rel": "self", "type": "application/opds+json" } ],
-          "items": [
+          "publications": [
             {
-              "id": "urn:isbn:9780316769488",
-              "title": { "value": "The Catcher in the Rye", "language": "en" },
-              "language": ["en"],
-              "published": "2024-01-15T00:00:00+00:00",
-              "authors": [ { "name": "J.D. Salinger" } ],
-              "subjects": [ { "name": "Fiction" } ],
-              "Series": { "name": "Penguin Classics", "position": 3 },
-              "Rels": ["item"],
-              "Links": [
+              "metadata": {
+                "identifier": "urn:isbn:9780316769488",
+                "title": "The Catcher in the Rye",
+                "language": ["en"],
+                "modified": "2024-01-15T00:00:00+00:00"
+              },
+              "links": [
                 {
                   "href": "/acquire",
-                  "rel": "http://opds.io/rel/acquire",
+                  "rel": "http://opds-spec.org/acquisition/buy",
                   "type": "application/pdf",
                   "properties": {
                     "price": { "value": 9.99, "currency": "USD", "valueInteger": 999 },
@@ -38,35 +35,44 @@ public class OpdsFeedTests
                     "indirectAcquisition": [ { "type": "application/epub+zip" } ]
                   }
                 }
-              ]
+              ],
+              "images": [ { "href": "/cover.jpg", "type": "image/jpeg" } ]
             }
           ],
-          "groups": [ { "title": "Browse", "links": [ { "href": "/subjects", "rel": "http://opds.io/subject" } ] } ],
-          "totalItems": 1,
-          "next": { "href": "/?page=2" }
+          "navigation": [ { "href": "/subjects", "title": "Subjects" } ],
+          "facets": [
+            {
+              "metadata": { "title": "Availability" },
+              "links": [ { "href": "/available", "rel": "http://opds-spec.org/facet" } ]
+            }
+          ],
+          "groups": [
+            {
+              "metadata": { "title": "Browse" },
+              "links": [ { "href": "/browse", "rel": "http://opds-spec.org/catalog" } ],
+              "navigation": [ { "href": "/fiction", "title": "Fiction" } ]
+            }
+          ]
         }
         """;
 
-    /// <summary>Feed metadata, links, items, acquisition objects and groups parse into typed properties.</summary>
+    /// <summary>Feed metadata, links, publications, navigation, facets, groups and acquisition objects parse into typed properties.</summary>
     [Fact]
     public void FeedParsesExpectedFields()
     {
         Feed feed = JsonSerializer.Deserialize<Feed>(FeedJson, ReadiumJson.Options)!;
         Assert.Equal("New arrivals", feed.Metadata.Title.Default);
         Assert.Equal(1, feed.Metadata.NumberOfItems);
-        Assert.Equal("http://opds.io/feed/2.0", Assert.Single(feed.Context));
-        Assert.Equal("New arrivals", feed.Metadata.Title.Default);
+        Assert.Equal("self", Assert.Single(feed.Links).Rel[0]);
 
-        OpdsPublication item = Assert.Single(feed.Items);
-        Assert.Equal("urn:isbn:9780316769488", item.Id);
-        Assert.Equal("The Catcher in the Rye", item.Title.Default);
-        Assert.Equal("en", Assert.Single(item.Language));
-        Assert.Equal("J.D. Salinger", Assert.Single(item.Authors).Name.Default);
-        Assert.Equal(3, Assert.Single(item.Series).Position);
-        Assert.Equal("item", Assert.Single(item.Rels));
-        Assert.Equal(new DateTimeOffset(2024, 1, 15, 0, 0, 0, TimeSpan.Zero), item.Published);
+        OpdsPublication publication = Assert.Single(feed.Publications);
+        Assert.Equal("urn:isbn:9780316769488", publication.Metadata.Identifier);
+        Assert.Equal("The Catcher in the Rye", publication.Metadata.Title.Default);
+        Assert.Equal("en", Assert.Single(publication.Metadata.Language));
+        Assert.Equal(new DateTimeOffset(2024, 1, 15, 0, 0, 0, TimeSpan.Zero), publication.Metadata.Modified);
+        Assert.Equal("/cover.jpg", Assert.Single(publication.Images).Href);
 
-        LinkProperties properties = Assert.Single(item.Links).Properties!;
+        LinkProperties properties = Assert.Single(publication.Links).Properties!;
         Assert.Equal(9.99m, properties.Price!.Value);
         Assert.Equal("USD", properties.Price.Currency);
         Assert.Equal(999, properties.Price.ValueInteger);
@@ -77,9 +83,11 @@ public class OpdsFeedTests
         Assert.Equal(4, properties.Copies.Available);
         Assert.Equal("application/epub+zip", Assert.Single(properties.IndirectAcquisition).Type);
 
-        Assert.Equal("Browse", Assert.Single(feed.Groups).Title.Default);
-        Assert.Equal(1, feed.TotalItems);
-        Assert.Equal("/?page=2", feed.Next!.Href);
+        Assert.Equal("Subjects", Assert.Single(feed.Navigation).Title);
+        Assert.Equal("Availability", Assert.Single(feed.Facets).Metadata.Title.Default);
+        FeedGroup group = Assert.Single(feed.Groups);
+        Assert.Equal("Browse", group.Metadata.Title.Default);
+        Assert.Equal("Fiction", Assert.Single(group.Navigation).Title);
     }
 
     /// <summary>Feed JSON round-trips unchanged.</summary>

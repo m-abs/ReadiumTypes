@@ -17,6 +17,9 @@ public static class ReadiumJson
     {
         TypeInfoResolver = new ShouldSerializeJsonTypeInfoResolver(),
 
+        // Optional properties absent from the wire; nulls would fail schema validation (ADR 0005).
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+
         // Official fixtures use strings for numeric link fields (e.g. "width": "992").
         NumberHandling = JsonNumberHandling.AllowReadingFromString,
     };

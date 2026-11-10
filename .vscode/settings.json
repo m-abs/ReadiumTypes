@@ -1,15 +1,18 @@
 {
   "files.exclude": {
     "**/bin/": true,
-    "**/obj/": true
+    "**/obj/": true,
+    "_site": true
   },
   "files.watcherExclude": {
     "**/bin/**": true,
-    "**/obj/**": true
+    "**/obj/**": true,
+    "_site": true
   },
   "search.exclude": {
     "**/bin/": true,
-    "**/obj/": true
+    "**/obj/": true,
+    "_site": true
   },
   "cSpell.words": [
     "Mabs",
