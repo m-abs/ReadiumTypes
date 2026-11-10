@@ -4,7 +4,7 @@
     <TargetFramework>net10.0</TargetFramework>
     <RootNamespace>Mabs.ReadiumTypes</RootNamespace>
     <AssemblyName>ReadiumTypes</AssemblyName>
-    <Version>0.1.0</Version>
+    <Version>0.1.1</Version>
     <IsPackable>true</IsPackable>
     <PackageId>Mabs.ReadiumTypes</PackageId>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
