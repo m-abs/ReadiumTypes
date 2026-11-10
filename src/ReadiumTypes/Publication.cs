@@ -30,6 +30,34 @@ public record Publication : IExtensionDataHolder
     [JsonPropertyName("resources")]
     public List<Link> Resources { get; set; } = [];
 
+    /// <summary>Table of contents of the publication.</summary>
+    [JsonPropertyName("toc")]
+    public List<Link> Toc { get; set; } = [];
+
+    /// <summary>EPUB profile page list sub-collection.</summary>
+    [JsonPropertyName("pageList")]
+    public List<Link> PageList { get; set; } = [];
+
+    /// <summary>EPUB profile landmarks sub-collection.</summary>
+    [JsonPropertyName("landmarks")]
+    public List<Link> Landmarks { get; set; } = [];
+
+    /// <summary>EPUB profile list of audio recordings sub-collection.</summary>
+    [JsonPropertyName("loa")]
+    public List<Link> Loa { get; set; } = [];
+
+    /// <summary>EPUB profile list of illustrations sub-collection.</summary>
+    [JsonPropertyName("loi")]
+    public List<Link> Loi { get; set; } = [];
+
+    /// <summary>EPUB profile list of tables sub-collection.</summary>
+    [JsonPropertyName("lot")]
+    public List<Link> Lot { get; set; } = [];
+
+    /// <summary>EPUB profile list of videos sub-collection.</summary>
+    [JsonPropertyName("lov")]
+    public List<Link> Lov { get; set; } = [];
+
     /// <summary>Links to cover images of the publication.</summary>
     [JsonPropertyName("covers")]
     public List<Link> Covers { get; set; } = [];
@@ -73,6 +101,55 @@ public record Publication : IExtensionDataHolder
     public bool ShouldSerializeResources()
     {
         return Resources.Count > 0;
+    }
+
+    /// <summary>Determines whether <see cref="Toc"/> is written; an empty collection is omitted.</summary>
+    /// <returns><see langword="true"/> when <see cref="Toc"/> contains items.</returns>
+    public bool ShouldSerializeToc()
+    {
+        return Toc.Count > 0;
+    }
+
+    /// <summary>Determines whether <see cref="PageList"/> is written; an empty collection is omitted.</summary>
+    /// <returns><see langword="true"/> when <see cref="PageList"/> contains items.</returns>
+    public bool ShouldSerializePageList()
+    {
+        return PageList.Count > 0;
+    }
+
+    /// <summary>Determines whether <see cref="Landmarks"/> is written; an empty collection is omitted.</summary>
+    /// <returns><see langword="true"/> when <see cref="Landmarks"/> contains items.</returns>
+    public bool ShouldSerializeLandmarks()
+    {
+        return Landmarks.Count > 0;
+    }
+
+    /// <summary>Determines whether <see cref="Loa"/> is written; an empty collection is omitted.</summary>
+    /// <returns><see langword="true"/> when <see cref="Loa"/> contains items.</returns>
+    public bool ShouldSerializeLoa()
+    {
+        return Loa.Count > 0;
+    }
+
+    /// <summary>Determines whether <see cref="Loi"/> is written; an empty collection is omitted.</summary>
+    /// <returns><see langword="true"/> when <see cref="Loi"/> contains items.</returns>
+    public bool ShouldSerializeLoi()
+    {
+        return Loi.Count > 0;
+    }
+
+    /// <summary>Determines whether <see cref="Lot"/> is written; an empty collection is omitted.</summary>
+    /// <returns><see langword="true"/> when <see cref="Lot"/> contains items.</returns>
+    public bool ShouldSerializeLot()
+    {
+        return Lot.Count > 0;
+    }
+
+    /// <summary>Determines whether <see cref="Lov"/> is written; an empty collection is omitted.</summary>
+    /// <returns><see langword="true"/> when <see cref="Lov"/> contains items.</returns>
+    public bool ShouldSerializeLov()
+    {
+        return Lov.Count > 0;
     }
 
     /// <summary>Determines whether <see cref="Covers"/> is written; an empty collection is omitted.</summary>

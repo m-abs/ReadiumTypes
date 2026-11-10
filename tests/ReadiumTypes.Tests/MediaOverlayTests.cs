@@ -4,72 +4,66 @@ using Xunit;
 
 namespace Mabs.ReadiumTypes.Tests;
 
-/// <summary>Media overlay manifest and node parsing tests.</summary>
+/// <summary>Media overlay styling, syncnarr link and syncnarr document parsing tests.</summary>
 public class MediaOverlayTests
 {
     private const string ManifestJson = """
         {
           "metadata": {
             "title": "Audio book",
-            "media-overlay": [
-              {
-                "href": "overlay.json",
-                "type": "application/vnd.readium.mo+json",
-                "language": "en",
-                "audio": "audio.mp3",
-                "playback-speed": 1.0,
-                "volume": 0.5,
-                "nodes": {
-                  "id": "root",
-                  "class": "paragraph",
-                  "children": [
-                    {
-                      "id": "p1",
-                      "ref-id": "root",
-                      "text": "#p1",
-                      "text-type": "text/html",
-                      "audio-src": "audio.mp3#t=0.0,3.5"
-                    }
-                  ]
-                }
-              }
-            ]
+            "media-overlay": { "active-class": "-epub-media-overlay-active" }
           },
           "links": [],
           "readingOrder": [
             {
               "href": "p1.xhtml",
               "type": "application/xhtml+xml",
-              "properties": {
-                "media-overlay": { "playback-speed": 1.25, "text-to-speech-voice": "Karen" }
-              }
+              "duration": 860.5,
+              "alternate": [
+                { "type": "application/vnd.syncnarr+json", "duration": 860.5, "href": "media-overlays_0.json" }
+              ]
             }
           ]
         }
         """;
 
-    /// <summary>mediaOverlay metadata, nodes and link properties parse into typed properties.</summary>
+    private const string SyncNarrJson = """
+        {
+          "role": ["section", "bodymatter"],
+          "narration": [
+            { "text": "p1.xhtml#c01h01", "audio": "audio.mp3#t=24.5,29.268" },
+            { "role": "aside", "text": "p1.xhtml#c01w00001", "audio": "audio.mp3#t=29.268,29.441" }
+          ]
+        }
+        """;
+
+    /// <summary>Media overlay styling and the syncnarr alternate link parse into typed properties.</summary>
     [Fact]
     public void MediaOverlayParsesExpectedFields()
     {
         Publication publication = JsonSerializer.Deserialize<Publication>(ManifestJson, ReadiumJson.Options)!;
-        MediaOverlay overlay = Assert.Single(publication.Metadata.MediaOverlay);
-        Assert.Equal("overlay.json", overlay.Href);
-        Assert.Equal("en", overlay.Language);
-        Assert.Equal(1.0, overlay.PlaybackSpeed);
-        Assert.Equal(0.5, overlay.Volume);
-        Assert.Equal("root", overlay.Nodes!.Id);
-        MediaOverlayNode child = Assert.Single(overlay.Nodes.Children);
-        Assert.Equal("p1", child.Id);
-        Assert.Equal("root", child.RefId);
-        Assert.Equal("audio.mp3#t=0.0,3.5", child.AudioSrc);
+        Assert.Equal("-epub-media-overlay-active", publication.Metadata.MediaOverlay!.ActiveClass);
 
-        MediaOverlayProperties properties = Assert.Single(publication.ReadingOrder).Properties!.MediaOverlay!;
-        Assert.Equal(1.25, properties.PlaybackSpeed);
-        Assert.Equal("Karen", properties.TextToSpeechVoice);
+        Link chapter = Assert.Single(publication.ReadingOrder);
+        Link alternate = Assert.Single(chapter.Alternate);
+        Assert.Equal(MediaTypes.SyncNarrJson, alternate.Type);
+        Assert.Equal("media-overlays_0.json", alternate.Href);
     }
 
-    /// <summary>Media overlay JSON round-trips unchanged.</summary>
+    /// <summary>A vnd.syncnarr+json document parses into the node tree, string or array roles included.</summary>
+    [Fact]
+    public void SyncNarrDocumentParsesIntoNodeTree()
+    {
+        MediaOverlayNode root = JsonSerializer.Deserialize<MediaOverlayNode>(SyncNarrJson, ReadiumJson.Options)!;
+        Assert.Equal(["section", "bodymatter"], root.Role);
+        Assert.Equal(2, root.Narration.Count);
+        Assert.Empty(root.Narration[0].Role);
+        Assert.Equal("p1.xhtml#c01h01", root.Narration[0].Text);
+        Assert.Equal("audio.mp3#t=29.268,29.441", root.Narration[1].Audio);
+        Assert.Equal(["aside"], root.Narration[1].Role);
+    }
+
+    /// <summary>Manifest and syncnarr document JSON round-trip unchanged.</summary>
     [Fact]
     public void MediaOverlayRoundtripIsStable()
     {
@@ -77,5 +71,12 @@ public class MediaOverlayTests
         string first = JsonSerializer.Serialize(publication, ReadiumJson.Options);
         string second = JsonSerializer.Serialize(JsonSerializer.Deserialize<Publication>(first, ReadiumJson.Options)!, ReadiumJson.Options);
         Assert.Equal(first, second);
+        Assert.Contains("\"media-overlay\":{\"active-class\":\"-epub-media-overlay-active\"}", first);
+
+        MediaOverlayNode root = JsonSerializer.Deserialize<MediaOverlayNode>(SyncNarrJson, ReadiumJson.Options)!;
+        string narrFirst = JsonSerializer.Serialize(root, ReadiumJson.Options);
+        Assert.Equal(narrFirst, JsonSerializer.Serialize(JsonSerializer.Deserialize<MediaOverlayNode>(narrFirst, ReadiumJson.Options)!, ReadiumJson.Options));
+        Assert.Contains("\"role\":[\"aside\"]", narrFirst);
+        Assert.DoesNotContain("\"video\"", narrFirst);
     }
 }

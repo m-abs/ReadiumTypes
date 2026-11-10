@@ -11,6 +11,18 @@ public record LocatorLocations : IExtensionDataHolder
     [JsonPropertyName("fragments")]
     public List<string> Fragments { get; set; } = [];
 
+    /// <summary>Progression in the resource, between 0 and 1.</summary>
+    [JsonPropertyName("progression")]
+    public double? Progression { get; set; }
+
+    /// <summary>Index of the position in the publication, starting at 1.</summary>
+    [JsonPropertyName("position")]
+    public int? Position { get; set; }
+
+    /// <summary>Progression in the publication, between 0 and 1.</summary>
+    [JsonPropertyName("totalProgression")]
+    public double? TotalProgression { get; set; }
+
     /// <summary>CSS selector of the position.</summary>
     [JsonPropertyName("cssSelector")]
     public string? CssSelector { get; set; }

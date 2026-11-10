@@ -15,6 +15,6 @@ public enum Layout
     Fixed,
 
     /// <summary>Scrollable content.</summary>
-    [JsonStringEnumMemberName("scroll")]
-    Scroll,
+    [JsonStringEnumMemberName("scrolled")]
+    Scrolled,
 }

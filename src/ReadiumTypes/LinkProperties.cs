@@ -26,10 +26,6 @@ public record LinkProperties : IExtensionDataHolder
     [JsonPropertyName("encrypted")]
     public EncryptedProperties? Encrypted { get; set; }
 
-    /// <summary>Synchronized-narration media overlay data for the linked resource.</summary>
-    [JsonPropertyName("media-overlay")]
-    public MediaOverlayProperties? MediaOverlay { get; set; }
-
     /// <summary>Hint about the expected number of items returned.</summary>
     [JsonPropertyName("numberOfItems")]
     public int? NumberOfItems { get; set; }

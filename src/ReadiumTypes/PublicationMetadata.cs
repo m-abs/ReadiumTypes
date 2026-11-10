@@ -10,6 +10,15 @@ namespace Mabs.ReadiumTypes;
 /// <summary>Metadata of a publication, per the web publication metadata schema.</summary>
 public record PublicationMetadata : IExtensionDataHolder
 {
+    /// <summary>Schema.org type URI of the publication, e.g. <c>http://schema.org/Audiobook</c>.</summary>
+    [JsonPropertyName("@type")]
+    public string? Type { get; set; }
+
+    /// <summary>Profile conformance URIs, e.g. <see cref="Profiles.Audiobook"/>.</summary>
+    [JsonConverter(typeof(StringOrArrayConverter))]
+    [JsonPropertyName("conformsTo")]
+    public List<string> ConformsTo { get; set; } = [];
+
     /// <summary>Identifier of the publication.</summary>
     [JsonPropertyName("identifier")]
     public string? Identifier { get; set; }
@@ -91,6 +100,10 @@ public record PublicationMetadata : IExtensionDataHolder
     [JsonPropertyName("numberOfPages")]
     public int? NumberOfPages { get; set; }
 
+    /// <summary>Whether the publication is an abridged edition (audiobook profile).</summary>
+    [JsonPropertyName("abridged")]
+    public bool? Abridged { get; set; }
+
     /// <summary>Entities the metadata describes.</summary>
     [JsonPropertyName("belongs_to")]
     public MetadataBelongsTo? BelongsTo { get; set; }
@@ -111,9 +124,22 @@ public record PublicationMetadata : IExtensionDataHolder
     [JsonPropertyName("accessibility")]
     public Accessibility? Accessibility { get; set; }
 
-    /// <summary>Media overlay documents of the publication.</summary>
+    /// <summary>
+    /// Non-standard media overlay styling of the publication, under the kebab-case
+    /// <c>media-overlay</c> key emitted by Thorium. The standard key is the camelCase
+    /// <see cref="EpubMediaOverlay"/>.
+    /// </summary>
     [JsonPropertyName("media-overlay")]
-    public List<MediaOverlay> MediaOverlay { get; set; } = [];
+    public MediaOverlayStyling? MediaOverlay { get; set; }
+
+    /// <summary>
+    /// EPUB profile media overlay metadata, under the standard camelCase
+    /// <c>mediaOverlay</c> key of the EPUB metadata extension. Distinct from the
+    /// non-standard <see cref="MediaOverlay"/>. See
+    /// <see href="https://readium.org/webpub-manifest/profiles/epub#mediaoverlay">the EPUB profile</see>.
+    /// </summary>
+    [JsonPropertyName("mediaOverlay")]
+    public EpubMediaOverlay? EpubMediaOverlay { get; set; }
 
     /// <summary>Text and data mining reservation policy of the publication.</summary>
     [JsonPropertyName("tdm")]
@@ -122,6 +148,13 @@ public record PublicationMetadata : IExtensionDataHolder
     /// <summary>Wire properties not described by the schema.</summary>
     [JsonExtensionData]
     public IDictionary<string, JsonElement>? ExtensionData { get; set; }
+
+    /// <summary>Determines whether <see cref="ConformsTo"/> is written; an empty collection is omitted.</summary>
+    /// <returns><see langword="true"/> when <see cref="ConformsTo"/> contains items.</returns>
+    public bool ShouldSerializeConformsTo()
+    {
+        return ConformsTo.Count > 0;
+    }
 
     /// <summary>Determines whether <see cref="AltIdentifier"/> is written; an empty collection is omitted.</summary>
     /// <returns><see langword="true"/> when <see cref="AltIdentifier"/> contains items.</returns>
@@ -184,12 +217,5 @@ public record PublicationMetadata : IExtensionDataHolder
     public bool ShouldSerializeContributor()
     {
         return Contributor.Count > 0;
-    }
-
-    /// <summary>Determines whether <see cref="MediaOverlay"/> is written; an empty collection is omitted.</summary>
-    /// <returns><see langword="true"/> when <see cref="MediaOverlay"/> contains items.</returns>
-    public bool ShouldSerializeMediaOverlay()
-    {
-        return MediaOverlay.Count > 0;
     }
 }
